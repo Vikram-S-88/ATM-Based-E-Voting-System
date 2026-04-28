@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter PIN</title>
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .pin-card {
+            background: white;
+            width: 400px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #e67e22; 
+        }
+        
+        .step-badge {
+            background-color: #fff3e0;
+            color: #e67e22;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+        .status-item {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .checked { background: #e8f5e9; color: #27ae60; }
+        .pending { background: #f8f9fa; color: #ccc; }
+
+        .pin-input {
+            font-size: 40px;
+            letter-spacing: 15px;
+            width: 200px;
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: monospace;
+            color: #2c3e50;
+        }
+        .pin-input:focus {
+            border-color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: white;
+            border: none;
+            padding: 16px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="pin-card">
+        
+        <h1>Security Check</h1>
+
+        <div class="status-row">
+            <div class="status-item checked">✔ Card Scanned</div>
+            <div class="status-item pending">Biometric Pending</div>
+        </div>
+        
+        <form action="/verify_pin_stage" method="POST">
+            <input type="password" class="pin-input" name="pin" maxlength="4" placeholder="••••" required autofocus autocomplete="off">
+            <button type="submit" class="btn">Verify PIN</button>
+        </form>
+    </div>
+</body>
+</html>

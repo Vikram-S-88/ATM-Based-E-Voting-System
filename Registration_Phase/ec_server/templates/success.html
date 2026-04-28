@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Complete</title>
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .success-card {
+            background: white;
+            width: 500px; 
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #27ae60;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .icon-circle {
+            background-color: #e8f5e9;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            animation: pop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .check-mark {
+            color: #27ae60;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        /* QR Code Styling */
+        .qr-container {
+            background: #f8f9fa;
+            padding: 15px;
+            display: inline-block;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            min-height: 250px; 
+            min-width: 250px;
+            display: flex;       
+            justify-content: center;
+            align-items: center;
+            margin-left: auto;   
+            margin-right: auto;
+        }
+
+        .qr-img {
+            width: 250px; 
+            height: 250px; 
+            display: block;
+        }
+
+        .qr-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        /* Timer and Progress Bar */
+        .timer-container {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #27ae60; 
+            width: 100%;
+            transition: width 1s linear;
+        }
+        
+        .timer-text { 
+            font-size: 14px; color: #7f8c8d; margin-top: 15px; display: block; 
+        }
+
+        /* Manual Return Button */
+        .btn-return {
+            display: inline-block;
+            margin-top: 15px;
+            color: #27ae60;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #27ae60;
+            padding: 8px 20px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-return:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="icon-circle">
+            <span class="check-mark">✔</span>
+        </div>
+        
+        <div class="status-badge">Registration Successful</div>
+
+        <p>
+            Please save your <strong>Voter Alias</strong> below for future verification.
+        </p>
+
+        <span class="qr-label">Voter Alias Hash QR</span>
+        
+        <div class="qr-container">
+            {% if qr_code %}
+                <img src="data:image/png;base64,{{ qr_code }}" class="qr-img" alt="Voter Hash QR">
+            {% else %}
+                <span style="color: #ccc; font-size: 14px;">QR Generation Failed</span>
+            {% endif %}
+        </div>
+
+        <div class="timer-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <span class="timer-text">Returning to Bank Login in <span id="timer">20</span> seconds...</span>
+        
+        <a href="http://localhost:5000/" class="btn-return">Return Immediately</a>
+    </div>
+
+    <script>
+        // Security: Prevent Back Button Logic
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            // Redirect to Bank Server if they try to go back
+            window.location.replace("http://localhost:5000/"); 
+        };
+
+        // Countdown Logic
+        let timeLeft = 20;
+        const totalTime = 20;
+        const timerText = document.getElementById('timer');
+        const progressBar = document.getElementById('progressBar');
+        
+        progressBar.style.width = "100%";
+
+        const interval = setInterval(() => {
+            timeLeft--;
+            timerText.textContent = timeLeft;
+            
+            const percentage = (timeLeft / totalTime) * 100;
+            progressBar.style.width = percentage + "%";
+
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                // Redirect to the Bank Login Page (Port 5000)
+                window.location.replace("http://localhost:5000/"); 
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

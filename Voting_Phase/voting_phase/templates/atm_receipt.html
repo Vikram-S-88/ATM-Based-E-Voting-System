@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Receipt</title>
+    <style>
+        body { 
+            background-color: #eef2f5; /* Light Theme Background */
+            color: #333; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .receipt-card { 
+            background: white; 
+            width: 480px; 
+            padding: 60px 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            text-align: center; 
+            border-top: 5px solid #27ae60; /* Green Success Accent */
+        }
+
+        h1 { margin: 0 0 15px 0; color: #2c3e50; font-size: 32px; letter-spacing: 1px; font-weight: 800; }
+        
+        .status-badge {
+            background: #e8f5e9;
+            color: #27ae60;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 30px; 
+        }
+
+        .success-message {
+            color: #2c3e50;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-top: 20px;
+            font-weight: 400;
+        }
+
+        .sub-text {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .timer-text {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #95a5a6;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="receipt-card">
+        <h1>Vote Secured</h1>
+        <div class="status-badge">✔ BLOCKCHAIN CONFIRMED</div>
+
+        <p class="success-message">
+            Voted Successfully.
+            <span class="sub-text">Your ballot has been encrypted and recorded. Verify using your unique voter alias hash.</span>
+        </p>
+
+        <div class="timer-text">Returning to home screen in <span id="timer">10</span> seconds...</div>
+    </div>
+
+    <script>
+        // 1. Security: Prevent Back Button Logic
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () { history.go(1); };
+
+        // 2. Auto-Redirect Timer (10 Seconds)
+        let timeLeft = 10;
+        const timerElement = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                window.location.href = "/"; // Redirect to Home/RFID Scan
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

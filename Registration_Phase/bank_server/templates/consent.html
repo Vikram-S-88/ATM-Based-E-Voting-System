@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            width: 400px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #0056b3;
+        }
+
+        h2 { 
+            margin: 0 0 10px 0; 
+            color: #0056b3; 
+            font-size: 22px; 
+            font-weight: 700;
+        }
+        
+        .info-text {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Modern OTP Input Styling */
+        .otp-input {
+            width: 80%;
+            padding: 15px;
+            font-size: 32px;
+            text-align: center;
+            letter-spacing: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-family: 'Consolas', monospace;
+            transition: all 0.3s;
+            color: #333;
+            outline: none;
+        }
+
+        .otp-input:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 10px rgba(0, 86, 179, 0.15);
+        }
+
+        /* Legal Consent Box */
+        .consent-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 25px;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 3px;
+            cursor: pointer;
+            accent-color: #0056b3;
+        }
+
+        label {
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+        label b { color: #333; }
+
+        .btn-green {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0056b3, #004494);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+        }
+
+        /* Links Section */
+        .links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #0056b3;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 0;
+            font-weight: 600;
+        }
+        .link-btn:hover { text-decoration: underline; }
+
+        .link-danger { color: #dc3545; }
+        .link-danger:hover { color: #b02a37; }
+
+        .error-banner {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 25px;
+            border: 1px solid #fecaca;
+        }
+    </style>
+    <script>
+        function resendOTP() {
+            const btn = document.getElementById('resendBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+            btn.style.opacity = "0.6";
+
+            fetch('/resend_otp', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                // Reset button after cooldown or immediately
+                setTimeout(() => {
+                    btn.innerText = "Resend OTP";
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                }, 30000); // Optional visual cooldown
+            })
+            .catch(err => {
+                alert("Error sending OTP");
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="card">
+        <h2>2-Step Verification</h2>
+        <p class="info-text">
+            We have sent a <b>One-Time Password (OTP)</b> to your registered mobile ending in <b>{{ mobile_last_4 }}</b>.
+        </p>
+        
+        {% if error %}
+            <div class="error-banner">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <form action="/verify_otp_consent" method="POST">
+            <input type="text" name="otp" class="otp-input" maxlength="6" placeholder="------" required autocomplete="off" autofocus>
+            
+            <div class="consent-box">
+                <input type="checkbox" name="consent" id="consent" required>
+                <label for="consent">
+                    I authorize the bank to share my <b>Name, Father's Name, and DOB</b> with the Election Commission for secure identity verification.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-green">Verify & Proceed</button>
+        </form>
+        
+        <div class="links">
+            <button onclick="resendOTP()" id="resendBtn" class="link-btn">Resend OTP</button>
+            <!-- <a href="/logout" class="link-btn link-danger">Cancel / Logout</a> -->
+        </div>
+    </div>
+</body>
+</html>

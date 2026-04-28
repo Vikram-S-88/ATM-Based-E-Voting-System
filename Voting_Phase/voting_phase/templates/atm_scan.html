@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Biometric Scan</title>
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .scan-card {
+            background: white;
+            width: 400px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #27ae60;
+        }
+        
+        .step-badge {
+            background-color: #e8f5e9;
+            color: #27ae60;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 30px;
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #e9ecef;
+        }
+
+        .icon-wrapper {
+            margin: 30px 0;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .icon {
+            font-size: 80px;
+            color: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #27ae60, #219150);
+            color: white;
+            border: none;
+            padding: 16px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .error-box {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 25px;
+            border: 1px solid #fecaca;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-card">
+       
+        <div class="header">
+            <h1>Biometric Check</h1>
+        </div>
+
+        {% if error %}
+            <div class="error-box">
+                ⚠️ {{ error }}
+            </div>
+        {% endif %}
+
+        <div class="icon-wrapper">
+            <div class="icon">👍</div>
+        </div>
+        
+        <div class="status-bar">
+            ✔ Card Verified &nbsp;&nbsp;|&nbsp;&nbsp; ✔ PIN Verified
+        </div>
+        
+        <p style="color:#666; margin-bottom:30px;">
+            Place your registered finger on the sensor to complete verification.
+        </p>
+
+        <form action="/final_auth_bio" method="POST">
+            <button type="submit" class="btn">Scan Fingerprint</button>
+        </form>
+    </div>
+</body>
+</html>

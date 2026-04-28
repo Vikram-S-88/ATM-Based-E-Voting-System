@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Ballot</title>
+    <style>
+        body {
+            background-color: #eef2f5; /* Light Theme */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .header p { color: #7f8c8d; }
+
+        /* Error Alert Box */
+        .alert {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 20px auto;
+            font-weight: bold;
+            border: 1px solid #fecaca;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Candidate Grid */
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .candidate-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .candidate-card:hover { 
+            transform: translateY(-5px); 
+            border-color: #3498db; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .number-badge {
+            background: #2c3e50;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 900;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .candidate-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: left;
+        }
+
+        /* Input Section */
+        .vote-section {
+            background: white;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-top: 5px solid #3498db; /* Blue Accent */
+        }
+
+        .vote-input {
+            background: #fff;
+            color: #2c3e50;
+            width: 120px;
+            font-size: 45px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-weight: bold;
+            outline: none;
+            margin-bottom: 25px;
+        }
+        .vote-input:focus { border-color: #3498db; box-shadow: 0 0 15px rgba(52, 152, 219, 0.2); }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4); 
+        }
+
+        .timer-text {
+            margin-top: 20px;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Official Ballot</h1>
+        <p>Type the number of your chosen candidate below.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert">⚠ {{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="candidate-grid">
+        {% for idx, name in candidates_enum %}
+        <div class="candidate-card">
+            <div class="number-badge">{{ idx }}</div>
+            <div class="candidate-name">{{ name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="vote-section">
+        <form id="voteForm" action="/submit_vote" method="POST">
+            <input type="text" 
+                   id="party_number"
+                   name="party_number" 
+                   class="vote-input" 
+                   maxlength="1" 
+                   pattern="[0-9]" 
+                   required 
+                   autofocus 
+                   autocomplete="off"
+                   placeholder="#">
+            <br>
+            <button type="submit" class="submit-btn">Confirm Vote</button>
+        </form>
+        
+        <div class="timer-text">Vote auto-submits as invalid in <span id="timer">20</span> seconds...</div>
+    </div>
+
+    <script>
+        // Keep focus on input
+        const input = document.getElementById('party_number');
+        input.focus();
+        document.addEventListener('click', () => input.focus());
+
+        // 20-Second Timeout Logic
+        let timeLeft = 20;
+        const timerElement = document.getElementById('timer');
+        const voteForm = document.getElementById('voteForm');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                
+                // AUTO-SPOIL: Set value to "0" (Invalid) and submit
+                input.value = "0"; 
+                voteForm.submit();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
